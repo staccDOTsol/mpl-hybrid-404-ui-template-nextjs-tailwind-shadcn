@@ -1,0 +1,15 @@
+{
+  "name": "AIRT #7",
+  "description": "AIRT generated for the Solana Blockchain",
+  "symbol": "AIRT",
+  "image": "https://shdw-drive.genesysgo.net/zkBm6ZGZuHq85dJESQkEGU4dDm8SXxmxmEbm4oiVTZs/art-7.png",
+  "properties": {
+    "files": [
+      {
+        "uri": "https://shdw-drive.genesysgo.net/zkBm6ZGZuHq85dJESQkEGU4dDm8SXxmxmEbm4oiVTZs/art-7.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}
