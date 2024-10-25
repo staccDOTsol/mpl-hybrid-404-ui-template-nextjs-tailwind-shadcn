@@ -1,3 +1,5 @@
+# MPL Hybrid 404 UI Template
+
 This is a downloadable reusable UI template that utilizes Nextjs and Tailwind for the front end framework while also being preinstalled with Metaplex Umi, Solana WalletAdapter, and Zustand global store for ease of use.
 
 
@@ -13,40 +15,41 @@ This is a downloadable reusable UI template that utilizes Nextjs and Tailwind fo
 - Zustand
 - Dark/Light Mode
 - Umi Helpers
+- MPL Hyrbid 404 Integration
+- Escrow Management
 
 ## Installation
 
 ```
-git clone https://github.com/metaplex-foundation/metaplex-nextjs-tailwind-template.git
+git clone https://github.com/metaplex-foundation/mpl-hybrid-404-ui-template-nextjs-tailwind-shadcn.git
 ```
 
 ## Setup
 
-### Change RPC
+### .env File
 
-You are free to set up the RPC url into project as you wish either via
+Rename `.env.example` to `.env`
 
-- .env
-- constants.ts file
-- hardcoded into umi directly
+Fill out the following with the correct details.
 
-In this example the RPC url is hardcoded into the `umiStore` umi state under `src/store/useUmiStore.ts` at line `21`.
+```shell
+// Escrow Account
+NEXT_PUBLIC_ESCROW="11111111111111111111111111111111"
+NEXT_PUBLIC_COLLECTION="11111111111111111111111111111111"
+NEXT_PUBLIC_TOKEN="11111111111111111111111111111111"
 
-```ts
-const useUmiStore = create<UmiState>()((set) => ({
-  // add your own RPC here
-  umi: createUmi('http://api.devnet.solana.com').use(
-    signerIdentity(
-      createNoopSigner(publicKey('11111111111111111111111111111111'))
-    )
-  ),
-  signer: undefined,
-  updateSigner: (signer) => {
-    console.log('updateSigner')
-    set(() => ({ signer: createSignerFromWalletAdapter(signer) }))
-  },
-}))
+// RPC URL
+NEXT_PUBLIC_RPC="https://myrpc.com/?api-key="
 ```
+
+## Escrow Management
+
+You can manage your escrow by visiting the `/escrow` address which will load up the escrow management page where you can
+
+- get and overview of the escrow settings.
+- edit and update the escrow settings.
+- view the amount of tokens held in escrow.
+- view the Core NFT Assets that are held in escrow.
 
 ## Why Zustand?
 
