@@ -42,6 +42,15 @@ NEXT_PUBLIC_TOKEN="11111111111111111111111111111111"
 NEXT_PUBLIC_RPC="https://myrpc.com/?api-key="
 ```
 
+### Image Replacement
+
+In `src/assets/images/` there are two images to replace:
+
+- collectionImage.jpg
+- token.jpg
+
+Both of these images are used to save fetching the collection and token Metadata just to access the image uri.
+
 ## Escrow Management
 
 You can manage your escrow by visiting the `/escrow` address which will load up the escrow management page where you can

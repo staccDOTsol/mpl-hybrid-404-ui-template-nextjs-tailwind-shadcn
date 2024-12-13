@@ -39,7 +39,7 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
       amount: Number(form.get("tokenAmount")),
       feeAmount: Number(form.get("tokenFeeAmount")),
       solFeeAmount: Number(form.get("solFeeAmount")),
-      path: form.get("reroll") ? 1 : 0,
+      // path: form.get("reroll") ? 1 : 0,
     };
 
     if (validateFormData(formData)) {
@@ -138,7 +138,7 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
                 />
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="reroll"
                 defaultChecked={escrowData.path === 1 ? true : false}
@@ -151,7 +151,7 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
               >
                 Enable Reroll
               </label>
-            </div>
+            </div> */}
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Label htmlFor="tokenAmount">Token Swap Amount</Label>
               <Input
