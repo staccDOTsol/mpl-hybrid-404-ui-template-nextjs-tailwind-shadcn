@@ -17,6 +17,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import validateFormData from "./validateUpdateEscrowForm";
+import Spinner from "@/icons/spinner";
 
 const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,8 +60,8 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(e) => setIsOpen(e)}>
-      <DialogTrigger>
-        <Button>Edit Escrow</Button>
+      <DialogTrigger asChild>
+        <Button className="w-[200px] self-end">Edit Escrow</Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col gap-4">
         <DialogHeader>
@@ -182,8 +183,8 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
               />
             </div>
           </div>
-          <Button type="submit">
-            {isSubmitting ? "Submitting..." : "Submit"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <Spinner className="h-4 w-4" /> : "Submit"}
           </Button>
         </form>
       </DialogContent>

@@ -5,11 +5,11 @@ import useTokenStore from "@/store/useTokenStore";
 import useUmiStore from "@/store/useUmiStore";
 import { useEffect } from "react";
 import { Skeleton } from "./ui/skeleton";
-import TokenImage from "@/assets/images/token.png";
+import TokenImage from "@/assets/images/token.jpg";
 
 const TokenBalance = () => {
   const umiSigner = useUmiStore().signer;
-  const tokenStore = useTokenStore();
+  const { updateTokenAccount, tokenAccount } = useTokenStore();
 
   useEffect(() => {
     console.log(umiSigner);
@@ -19,7 +19,7 @@ const TokenBalance = () => {
     console.log("fetching token account of user " + umiSigner.publicKey);
     fetchUserTokenAccount()
       .then((account) => {
-        tokenStore.updateTokenAccount(account);
+        updateTokenAccount(account);
       })
       .catch((e) => {
         if (
@@ -27,10 +27,10 @@ const TokenBalance = () => {
             "The account of type [Token] was not found at the provided address"
           )
         ) {
-          tokenStore.updateTokenAccount(null);
+          updateTokenAccount(null);
         }
       });
-  }, [umiSigner]);
+  }, [umiSigner, updateTokenAccount]);
 
   return (
     <div className="flex gap-4 items-center">
@@ -39,11 +39,11 @@ const TokenBalance = () => {
         className="aspect-square w-8 h-8 rounded-full"
         alt="token image"
       />
-      {tokenStore.tokenAccount || tokenStore.tokenAccount === null ? (
+      {tokenAccount || tokenAccount === null ? (
         <div className="w-full text-center">
-          {tokenStore.tokenAccount === null
+          {tokenAccount === null
             ? "0"
-            : Number(tokenStore.tokenAccount.amount).toLocaleString()}
+            : "Balance: " + Number(tokenAccount.amount).toLocaleString()}
         </div>
       ) : (
         <Skeleton className="w-full min-w-[150px] h-8" />

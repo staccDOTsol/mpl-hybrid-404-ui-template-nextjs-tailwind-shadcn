@@ -1,8 +1,8 @@
 import { shortenAddress } from "@/lib/utils";
-import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
-import { Card } from "../ui/card";
-import UpdateEscrowForm from "../forms/updateEscrowForm";
 import useEscrowStore from "@/store/useEscrowStore";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
+import UpdateEscrowForm from "../forms/updateEscrowForm";
+import { Card } from "../ui/card";
 
 interface EscrowSettingsProps {
   escrowData: EscrowV1 | undefined;

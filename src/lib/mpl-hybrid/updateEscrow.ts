@@ -35,7 +35,9 @@ const updateEscrow = async (formData: updateFormArgs) => {
     token: publicKey(formData.token),
   });
 
-  return await sendAndConfirmWalletAdapter(updateTx, {commitment: "finalized"});
+  return await sendAndConfirmWalletAdapter(updateTx, {
+    commitment: "finalized",
+  });
 };
 
 export default updateEscrow;

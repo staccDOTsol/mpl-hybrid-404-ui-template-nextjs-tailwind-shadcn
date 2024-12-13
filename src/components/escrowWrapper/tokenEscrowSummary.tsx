@@ -32,14 +32,14 @@ const TokenEscrowSummary = () => {
         }
       );
     }
-  }, [escrow?.token]);
+  }, [escrow]);
 
   return (
     <Card className="flex flex-col min-h-[300px] p-8 lg:aspect-square">
       <div className="text-xl">Token Escrow</div>
       <div className="flex flex-1 flex-col justify-center w-full items-center gap-4">
         {metadata?.image ? (
-          <img src={metadata.image} className="w-24 h-24 rounded-full" />
+          <img alt="" src={metadata.image} className="w-24 h-24 rounded-full" />
         ) : (
           <Skeleton className="w-24 h-24 rounded-full" />
         )}

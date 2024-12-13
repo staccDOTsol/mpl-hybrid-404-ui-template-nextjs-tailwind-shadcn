@@ -15,7 +15,7 @@ This is a downloadable reusable UI template that utilizes Nextjs and Tailwind fo
 - Zustand
 - Dark/Light Mode
 - Umi Helpers
-- MPL Hyrbid 404 Integration
+- MPL Hybrid 404 Integration
 - Escrow Management
 
 ## Installation
@@ -51,6 +51,16 @@ You can manage your escrow by visiting the `/escrow` address which will load up 
 - view the amount of tokens held in escrow.
 - view the Core NFT Assets that are held in escrow.
 
+## UI Documentation
+
+Beyond this point is generic documentation for the UI itself regarding its setup and use of state management.
+
+- Why Zustand?
+- Access Umi in .tsx
+- Access Umi in .ts
+- Umi Helpers
+- Component Library
+
 ## Why Zustand?
 
 Zustand is a global store that allows you to access the store state from both hooks and regular state fetching.
@@ -59,7 +69,7 @@ By storing the umiInstance in **zustand** we can access it in both `ts` and `tsx
 
 While it's normally easier to use the helper methods below to access umi you can also access the state methods manually by calling for the `umiStore` state yourself.
 
-When fetching the umi state directly without a helper it will only pickup the umi instance and not the latest signer. By design when the walletAdapter changes state the state of the `signer` in the `umiStore` is updated but **NOT** applied to the `umi` state. So you will need to also pull the latest `signer` state and apply it to `umi`. This behaviour can be outlined in the `umiProvider.tsx` file. The helpers always pull a fresh instance of the `signer` state.
+When fetching the umi state directly without a helper it will only pickup the umi instance and not the latest signer. By design when the walletAdapter changes state the state of the `signer` in the `umiStore` is updated but **NOT** applied to the `umi` state. So you will need to also pull the latest `signer` state and apply it to `umi`. This behavior can be outlined in the `umiProvider.tsx` file. The helpers always pull a fresh instance of the `signer` state.
 
 ```ts
 // umiProvider.tsx snippet
@@ -100,7 +110,7 @@ Umi is split up into several components which can be called in different scenari
 
 Passing a transaction into `sendAndConfirmWithWalletAdapter()` will send the transaction while pulling the latest walletAdapter state from the zustand `umiStore` and will return the signature as a `string`. This can be accessed in both `.ts` and `.tsx` files.
 
-The function also provides and locks in the commitment level across `blockhash`, `send`, and `confirm` if provide. By default `confirmed` is used.
+The function also provides and locks in the commitment level across `blockhash`, `send`, and `confirm` if provided. By default `confirmed` is used.
 
 We also have a `skipPreflight` flag that can be enabled.
 
@@ -252,4 +262,4 @@ Shadcn is preinstalled so you only need to install the required components you w
 
 ## Theming
 
-Theming is handled by Shadcn and Tailwind using `CSS Variables`. Documentation regarding theming can be found here [https://ui.shadcn.com/docs/theming](https://ui.shadcn.com/docs/theming) and on Tailwinds websbite [https://tailwindcss.com/docs/](https://tailwindcss.com/docs/)
+Theming is handled by Shadcn and Tailwind using `CSS Variables`. Documentation regarding theming can be found here [https://ui.shadcn.com/docs/theming](https://ui.shadcn.com/docs/theming) and on Tailwinds website [https://tailwindcss.com/docs/](https://tailwindcss.com/docs/)

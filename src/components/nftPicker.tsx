@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import fetchEscrowAssets from "@/lib/fetchEscrowAssets";
 import fetchUserAssets from "@/lib/fetchUserAssets";
 import {
   DasApiAsset,
@@ -12,18 +13,16 @@ import {
 } from "@metaplex-foundation/digital-asset-standard-api";
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
-import fetchEscrowAssets from "@/lib/fetchEscrowAssets";
 
 const NftPicker = ({
   children,
-  name,
   wallet,
-  selectedNft,
+  setSelectedAsset,
 }: {
   children: React.ReactNode;
   name?: string;
   wallet: "user" | "escrow";
-  selectedNft: (asset: DasApiAsset) => void;
+  setSelectedAsset: (asset: DasApiAsset) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -31,7 +30,7 @@ const NftPicker = ({
 
   const handleSelection = (asset: DasApiAsset) => {
     setIsOpen(false);
-    selectedNft(asset);
+    setSelectedAsset(asset);
   };
 
   useEffect(() => {
@@ -59,7 +58,7 @@ const NftPicker = ({
         }
       });
     }
-  }, [isOpen]);
+  }, [isOpen, wallet]);
 
   const assetList = assets?.items
     .sort((a, b) =>
@@ -72,6 +71,10 @@ const NftPicker = ({
     .map((asset) => {
       const image = asset.content.files
         ? (asset.content.files[0]["cdn_uri"] as string)
+        : asset.content.links
+        ? (asset.content.links[
+            "image" as keyof typeof asset.content.links
+          ] as unknown as string)
         : "fallback.png";
 
       return (
@@ -97,12 +100,14 @@ const NftPicker = ({
       onOpenChange={(o) => (o ? setIsOpen(true) : setIsOpen(false))}
       open={isOpen}
     >
-      <DialogTrigger asChild className="cursor-pointer">
+      <DialogTrigger disabled={true} asChild className="cursor-pointer">
         {children}
       </DialogTrigger>
       <DialogContent className="w-full max-w-[1000px] max-h-[560px] h-full flex flex-col">
         <DialogHeader>
-          <DialogTitle>Select an NFT</DialogTitle>
+          <DialogTitle>
+            Select an NFT from {wallet === "escrow" ? "escrow" : "your wallet"}
+          </DialogTitle>
         </DialogHeader>
 
         {assetList && assetList.length > 0 ? (

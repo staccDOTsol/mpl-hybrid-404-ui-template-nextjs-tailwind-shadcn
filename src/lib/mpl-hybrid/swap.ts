@@ -1,3 +1,4 @@
+import { TradeState } from './../../components/swapWrapper/swapWrapper';
 import useEscrowStore from "@/store/useEscrowStore";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import { captureV1, releaseV1 } from "@metaplex-foundation/mpl-hybrid";
@@ -5,16 +6,11 @@ import fetchEscrowAssets from "../fetchEscrowAssets";
 import sendAndConfirmWalletAdapter from "../umi/sendAndConfirmWithWalletAdapter";
 import umiWithCurrentWalletAdapter from "../umi/umiWithCurrentWalletAdapter";
 
-export enum SwapOptions {
-  "NFT",
-  "Token",
-}
-
 const swap = async ({
   swapOption,
   selectedNft,
 }: {
-  swapOption: SwapOptions;
+  swapOption: TradeState;
   selectedNft?: DasApiAsset;
 }) => {
   console.log({ swapOption, selectedNft });
@@ -29,7 +25,7 @@ const swap = async ({
   }
 
   switch (swapOption) {
-    case SwapOptions.NFT:
+    case TradeState.nft:
       console.log("Swapping NFT");
 
       if (!selectedNft) {
@@ -46,7 +42,7 @@ const swap = async ({
       });
 
       return await sendAndConfirmWalletAdapter(releaseTx);
-    case SwapOptions.Token:
+    case TradeState.tokens:
       console.log("Swapping Tokens");
 
       let nft: DasApiAsset | undefined = selectedNft;
