@@ -13,7 +13,10 @@ import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 interface props {
   escrowAddress: string;
 }
-const EscrowWrapper = ({ escrowAddress }: props) => {
+const EscrowWrapper = () => {
+  const {escrow} = useEscrowStore();
+  if (!escrow) return;
+  const escrowAddress = escrow?.publicKey.toString();
   const [escrowData, setEscrowData] = useState<EscrowV1>();
   useEffect(() => {
     async function f() {
