@@ -7,13 +7,12 @@ import Image from 'next/image';
 import { CheckBadgeIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
 import SwapWrapper from '@/components/swapWrapper/swapWrapper';
 import useEscrowStore from '@/store/useEscrowStore';
-import { fetchEscrowV1 } from "@metaplex-foundation/mpl-hybrid";
+import { EscrowV1, fetchEscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 import { publicKey } from "@metaplex-foundation/umi";
 import umiWithCurrentWalletAdapter from '@/lib/umi/umiWithCurrentWalletAdapter';
 
 export default function Home() {
-  const [escrows, setEscrows] = useState([]);
-  const { escrow, setEscrow } = useEscrowStore();
+  const [escrows, setEscrows] = useState<EscrowV1[]>([]);
 
   useEffect(() => {
     fetch('/api/getEscrows')
@@ -26,7 +25,7 @@ export default function Home() {
     const escrowData = await fetchEscrowV1(umi, publicKey(escrowPubkey));
     useEscrowStore.setState({ escrow: escrowData });
   };
-
+  if (escrows.length === 0) return;
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -124,7 +123,7 @@ export default function Home() {
               >
                 {escrow.displayProperties.isSoldOut ? 'Sold Out' : 'Mint'}
               </Button>
-              <SwapWrapper />
+              <SwapWrapper escrowAddress={escrow.pubkey.toString()} tokenMint={escrow.token.toString()} escrow={escrow} />
               <Button variant="outline" className="px-3">
                 <ArrowTopRightOnSquareIcon className="w-4 h-4" />
               </Button>

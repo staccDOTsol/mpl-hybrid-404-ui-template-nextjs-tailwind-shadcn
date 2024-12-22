@@ -51,7 +51,7 @@ const UpdateEscrowForm = ({ escrowData }: { escrowData: EscrowV1 }) => {
         });
         setIsOpen(false);
         setIsSubmitting(false);
-        fetchEscrow().then((escrow) => {
+        fetchEscrow(escrowData.publicKey.toString()).then((escrow) => {
           useEscrowStore.setState({ escrow });
         });
       });

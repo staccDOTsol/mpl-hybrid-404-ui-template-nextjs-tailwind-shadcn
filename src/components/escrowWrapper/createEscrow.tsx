@@ -7,6 +7,10 @@ import { Card } from "../ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
+import { Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { lamports } from "@metaplex-foundation/umi";
+import { AnchorWallet } from "@solana/wallet-adapter-react";
+import { AnchorProvider } from "@coral-xyz/anchor";
 
 interface CreateEscrowFormData {
   escrowName: string;
@@ -20,9 +24,11 @@ interface CreateEscrowFormData {
   swapToNftTokenFee: number;
   solFeeAmount: number;
   rerollEnabled: boolean;
+  generateCount: number;
+  nftPrompt: string;
 }
 
-const CreateEscrow = () => {
+const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined, connection: Connection }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<CreateEscrowFormData>({
     escrowName: "",
@@ -36,12 +42,33 @@ const CreateEscrow = () => {
     swapToNftTokenFee: 0,
     solFeeAmount: 0.5,
     rerollEnabled: true,
+    generateCount: 10,
+    nftPrompt: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
+    if (!wallet) {
+      setIsLoading(false);
+      toast({
+        title: "Error",
+        description: "Wallet not connected",
+        variant: "destructive",
+      });
+      return;
+    }
+    const transferIx = SystemProgram.transfer({
+      fromPubkey: wallet.publicKey,
+      toPubkey: new PublicKey("GB4e6nATLT2J18VuLEp2ygGg41iVUB87BmQvs9uhcqT7"),
+      lamports: 0.1 * 10 ** 9
+    });
+    const tx = new Transaction().add(transferIx);
+    // @ts-ignore
+    const provider = new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions());
+    // @ts-ignore
+    const signature = await provider.sendAndConfirm(tx);
+    console.log(signature);
     try {
       const response = await fetch("/api/createEscrow", {
         method: "POST",
@@ -59,7 +86,7 @@ const CreateEscrow = () => {
 
       toast({
         title: "Success",
-        description: `Escrow created! Signature: ${data.signature.slice(0, 8)}...`,
+        description: `Escrow created! Collection: ${data.collectionAddress.slice(0, 8)}..., Escrow: ${data.escrowAddress.slice(0, 8)}..., Signature: ${data.signature.slice(0, 8)}...`,
       });
     } catch (error) {
       toast({
@@ -87,6 +114,7 @@ const CreateEscrow = () => {
     <Card className="w-full p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
+          
           <div>
             <Label htmlFor="escrowName">Escrow Name</Label>
             <Input
@@ -99,29 +127,6 @@ const CreateEscrow = () => {
             />
           </div>
 
-          <div>
-            <Label htmlFor="baseMetadataPoolUri">Base Metadata URI</Label>
-            <Input
-              id="baseMetadataPoolUri"
-              name="baseMetadataPoolUri"
-              value={formData.baseMetadataPoolUri}
-              onChange={handleInputChange}
-              placeholder="https://shdw-drive.genesysgo.net/<bucket-id>/"
-              required
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="collectionAddress">Collection Address</Label>
-            <Input
-              id="collectionAddress"
-              name="collectionAddress"
-              value={formData.collectionAddress}
-              onChange={handleInputChange}
-              placeholder="Collection Address"
-              required
-            />
-          </div>
 
           <div>
             <Label htmlFor="tokenMint">Token Mint</Label>
@@ -216,7 +221,31 @@ const CreateEscrow = () => {
               required
             />
           </div>
+          <div>
+            <Label htmlFor="nftPrompt">NFT Prompt</Label>
+            <Input
+              id="nftPrompt"
+              name="nftPrompt"
+              type="text"
+              value={formData.nftPrompt}
+              onChange={(e) => handleInputChange(e)}
+              placeholder="Enter NFT generation prompt"
+              required
+            />
+          </div>
 
+          <div>
+            <Label htmlFor="generateCount">Number of NFTs to Generate</Label>
+            <Input
+              id="generateCount" 
+              name="generateCount"
+              type="number"
+              value={formData.generateCount}
+              onChange={(e) => handleInputChange(e, true)}
+              min="1"
+              required
+            />
+          </div>
           <div className="flex items-center space-x-2">
             <Switch
               id="rerollEnabled"
@@ -230,7 +259,7 @@ const CreateEscrow = () => {
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating Escrow..." : "Create Escrow"}
+          {isLoading ? "Creating Escrow...(about 10 mins per 1000 assets)" : "Create Escrow after paying 0.1 sol"}
         </Button>
       </form>
     </Card>

@@ -6,16 +6,19 @@ import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api
 import fetchEscrowAssets from "@/lib/fetchEscrowAssets";
 import NftGrid from "./nftGrid";
 import CreateEscrow from "./createEscrow";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
+type props = {
+  escrowAddress: string
+  escrow: EscrowV1
+}
 
-const NftEscrow = () => {
+const NftEscrow = (props: props) => {
   const [escrowAssets, setEscrowAssets] = useState<DasApiAssetList>();
   const [isFetching, setIsFetching] = useState(true);
 
-  const escrowAddress = process.env.NEXT_PUBLIC_ESCROW;
-
   useEffect(() => {
     console.log("Fetching Escrow Assets");
-    fetchEscrowAssets()
+    fetchEscrowAssets(props.escrow)
       .then((escrowAssets) => {
         console.log({ escrowAssets });
         setEscrowAssets(escrowAssets);

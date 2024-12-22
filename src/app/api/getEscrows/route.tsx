@@ -17,7 +17,7 @@ export async function GET() {
     const accounts = await connection.getProgramAccounts(
       new PublicKey(MPL_HYBRID_PROGRAM_ID),
       {
-        filters: [{ dataSize: 282 }]
+        filters: [{ dataSize: 284 }]
       }
     );
 
@@ -33,7 +33,7 @@ export async function GET() {
       // Fetch metadata if URI exists
       let metadata = null;
       if (escrowData.authority.toString() !== "GB4e6nATLT2J18VuLEp2ygGg41iVUB87BmQvs9uhcqT7") {
-        return null;
+     //   return null;
       }
       if (escrowData.uri) {
         try {

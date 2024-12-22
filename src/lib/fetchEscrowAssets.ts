@@ -1,23 +1,14 @@
 import searchAssets from "./das/searchAssets";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 
-const fetchEscrowAssets = async () => {
+const fetchEscrowAssets = async (escrow: EscrowV1) => {
  
-  const escrowAddress = process.env.NEXT_PUBLIC_ESCROW;
-  const collectionId = process.env.NEXT_PUBLIC_COLLECTION;
-
-  if (!escrowAddress) {
-    throw new Error("Escrow address not found");
-  }
-
-  if (!collectionId) {
-    throw new Error("Collection not found");
-  }
 
   return await searchAssets({
-    owner: escrowAddress,
-    collection: collectionId,
+    owner: escrow.publicKey,
+    collection: escrow.collection,
     burnt: false,
-  });
+  }, escrow.collection.toString());
 };
 
 export default fetchEscrowAssets;

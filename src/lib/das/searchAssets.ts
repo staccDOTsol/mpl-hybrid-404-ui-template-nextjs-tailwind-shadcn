@@ -9,10 +9,9 @@ interface SearchAssetArgs {
   burnt: boolean;
 }
 
-const searchAssets = async (searchAssetArgs: SearchAssetArgs) => {
+const searchAssets = async (searchAssetArgs: SearchAssetArgs, collectionId: string) => {
   const umi = useUmiStore.getState().umi;
 
-  const collectionId = process.env.NEXT_PUBLIC_COLLECTION;
 
   if (!collectionId) {
     throw new Error("Collection not found");

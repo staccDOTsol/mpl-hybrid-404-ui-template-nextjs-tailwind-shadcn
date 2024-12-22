@@ -15,6 +15,7 @@ import { publicKey } from '@metaplex-foundation/umi';
 import { fetchAssetsByCollection } from '@metaplex-foundation/mpl-core';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { string, publicKey as publicKeySerializer} from '@metaplex-foundation/umi/serializers';
+import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
 const cache = new NodeCache({ stdTTL: 300 }); // Cache for 5 minutes
 
 const createNftWithCache = async (p: string, coll: string) => {
@@ -83,8 +84,10 @@ const createNftWithCache = async (p: string, coll: string) => {
   const signer = createSignerFromKeypair(umi, keypair);
   umi.use(keypairIdentity(signer));
   console.log('Set up keypair identity');
-
- await create(umi, assetToCapture).sendAndConfirm(umi)
+  const computePrice =  setComputeUnitPrice(umi, {
+    microLamports: 333333
+  })
+ await create(umi, assetToCapture).prepend(computePrice).sendAndConfirm(umi)
   
   const result = {
     success: true,

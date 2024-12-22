@@ -5,19 +5,11 @@ import {
 } from "@metaplex-foundation/mpl-toolbox";
 import { publicKey } from "@metaplex-foundation/umi";
 
-const fetchEscrowTokenBalance = async () => {
-  const escrowAddress = process.env.NEXT_PUBLIC_ESCROW;
-
-  if (!escrowAddress) {
-    throw new Error("Escrow address not set in env");
-  }
-
-  const tokenMint = process.env.NEXT_PUBLIC_TOKEN;
-
-  if (!tokenMint) {
-    throw new Error("Token mint not set in env");
-  }
-
+const fetchEscrowTokenBalance = async (
+  escrowAddress: string,
+  tokenMint: string
+) => {
+  
   const umi = useUmiStore.getState().umi;
 
   const escrowTokenAccountPda = findAssociatedTokenPda(umi, {

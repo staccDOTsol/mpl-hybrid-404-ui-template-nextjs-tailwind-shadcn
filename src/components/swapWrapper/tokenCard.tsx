@@ -9,24 +9,60 @@ import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { TradeState } from "./swapWrapper";
 import { set } from "@metaplex-foundation/umi/serializers";
+import fetchUserTokenAccount from "@/lib/fetchUserTokenAccount";
+import useUmiStore from "@/store/useUmiStore";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
+import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 const   formatAmount = (amount: number, decimals: number) => {
   return (amount / 10 ** decimals).toFixed(decimals);
 };
 interface TokenCardProps {
   tradeState: TradeState;
+  tokenAccount: string | undefined | null;
+  escrow: EscrowV1;
+  
 }
 
 const TokenCard = (props: TokenCardProps) => {
-  const { escrow } = useEscrowStore();
-  const { tokenAsset, updateTokenAsset } = useTokenStore();
+  const  escrow = props.escrow;
+
+  const [tokenAsset, setTokenAsset] = useState<DasApiAsset | undefined>(undefined);
+  useEffect(() => {
+    fetchAsset(escrow.token).then((asset) => {
+      setTokenAsset(asset);
+    });
+  }, [escrow]);
   const [loading, setLoading] = useState(true);
   const [decimals, setDecimals] = useState<any>(null);
-  
+  const { updateTokenAccount,  tokenAccount} = useTokenStore();
+  const umiSigner = useUmiStore().signer;
+
+  useEffect(() => {
+    console.log(umiSigner);
+    if (!umiSigner) {
+      return;
+    }
+    console.log("fetching token account of user " + umiSigner.publicKey);
+    fetchUserTokenAccount(props.tokenAccount)
+      .then((account) => {
+        updateTokenAccount(account);
+      })
+      .catch((e) => {
+        if (
+          e.message.includes(
+            "The account of type [Token] was not found at the provided address"
+          )
+        ) {
+          updateTokenAccount(null);
+        }
+      });
+  }, [umiSigner, updateTokenAccount]);
+
+
   useEffect(() => {
     if (!tokenAsset && escrow?.token) {
       setLoading(true);
       fetchAsset(escrow.token).then((asset) => {
-        updateTokenAsset(asset);
         console.log(asset)
         // @ts-ignore
         setDecimals(asset.token_info?.decimals);
@@ -34,7 +70,7 @@ const TokenCard = (props: TokenCardProps) => {
     } else {
       setLoading(false);
     }
-  }, [escrow, tokenAsset, updateTokenAsset]);
+  }, [escrow, tokenAsset]);
 
   return (
     <Card className="flex items-center w-full border border-foreground-muted rounded-xl shadow-lg p-4 gap-4">
@@ -50,7 +86,7 @@ const TokenCard = (props: TokenCardProps) => {
 
       {escrow && !loading ? (
         <div className="flex flex-col">
-            {formatAmount(Number(escrow.amount), decimals)}{" "}
+            {(Number(escrow.amount)).toFixed(decimals)}{" "}
           {tokenAsset?.content.metadata.name}
         </div>
       ) : (

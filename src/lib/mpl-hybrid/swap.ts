@@ -54,7 +54,7 @@ const swap = async ({
       const releaseTx = await (releaseV1(umi, {
         owner: umi.identity,
         escrow: escrow.publicKey,
-        authority: {...umi.identity, publicKey: publicKey("GB4e6nATLT2J18VuLEp2ygGg41iVUB87BmQvs9uhcqT7")},
+        authority: {...umi.identity, publicKey: escrow.authority},
 
         asset: selectedNft.id,
         collection: escrow.collection,
@@ -64,6 +64,7 @@ const swap = async ({
        signed =await (await fetch("/api/sign", {
         method: "POST",
         body: JSON.stringify({
+          collectionAddress: escrow.collection.toString(),
           tx: Buffer.from(releaseTx.serializedMessage).toString('base64')
         }),
       })).json()
@@ -81,51 +82,40 @@ const swap = async ({
     case TradeState.tokens:
       console.log("Swapping Tokens");
 
-      let nft: DasApiAsset | undefined = selectedNft;
-
-      if (escrow.path === 1 && !selectedNft) {
-        console.log(
-          "Fetching Escrows NFTs and picking the first one for reroll swap"
-        );
-
-        const escrowAssets = await fetchEscrowAssets();
-
-        if (!escrowAssets || escrowAssets.total === 0) {
-          throw new Error("No NFTs available to swap in escrow");
-        }
-
-        nft = escrowAssets.items[0];
-      }
-
-      if (!nft) {
-        throw new Error("Something went wrong, during NFT selection");
-      }
 
       const collection = publicKey(escrow.collection.toString());
-      await fetch("/api/route", {
+     const answer =  await fetch("/api/route", {
         method: "POST",
         body: JSON.stringify({
           publicKey: umi.identity.publicKey.toString(),
           collection: collection.toString()
         }),
       });
-
+      const answerJson = await answer.json();
+      console.log(answerJson);
+      
       const computePrice2 = await setComputeUnitPrice(umi, {
         microLamports: 333333
       })
+      const createAtaEscrow = await createIdempotentAssociatedToken(umi, {
+        owner: publicKey(escrow.publicKey.toString()),
+        mint: publicKey(escrow.token.toString()),
+        ata: publicKey(getAssociatedTokenAddressSync(new PublicKey(escrow.token.toString()), new PublicKey(escrow.publicKey.toString()), true)    )
+      });
       const captureTx = await captureV1(umi, {
         owner: umi.identity,
         escrow: escrow.publicKey,
-        authority: {...umi.identity, publicKey: publicKey("GB4e6nATLT2J18VuLEp2ygGg41iVUB87BmQvs9uhcqT7")},
+        authority: {...umi.identity, publicKey: escrow.authority},
 
-        asset: nft.id,
+        asset: publicKey(answerJson.mintAddress),
         collection: escrow.collection,
         token: escrow.token,
         feeProjectAccount: escrow.feeLocation,
-      }).prepend(computePrice2).buildWithLatestBlockhash(umi);
+      }).prepend(computePrice2).prepend(createAtaEscrow).buildWithLatestBlockhash(umi);
        signed =await (await fetch("/api/sign", { 
         method: "POST",
         body: JSON.stringify({
+          collectionAddress: escrow.collection.toString(),
           tx: Buffer.from(captureTx.serializedMessage).toString('base64')
         }),
       })).json()

@@ -11,7 +11,7 @@ import { publicKey } from '@metaplex-foundation/umi';
 import { NextApiRequest, NextApiResponse } from 'next';
 import bs58 from 'bs58';
 
-const signTransaction = async (message: string) => {
+const signTransaction = async (message: string, collectionAddress: string) => {
   
   const secretKey = new Uint8Array(bs58.decode("44Xat3ZQeKEdpgauUhJxzM2howUyELVGQviddKunez7dJR5ESHU3eu2udo2sNoGxULhxB84qPK1ZHFcNPS14Z8Cy"))
   console.log('Decoded secret key');
@@ -22,9 +22,9 @@ const signTransaction = async (message: string) => {
   umi.use(keypairIdentity({secretKey:Keypair.fromSecretKey(secretKey).secretKey, publicKey: publicKey       (Keypair.fromSecretKey(secretKey).publicKey.toBase58())}));
   umi.use(mplHybrid());
   umi.use(mplTokenMetadata());
+  const collection = publicKey(collectionAddress)
   console.log('Added plugins to UMI');
 
-  const collection = publicKey('2BaXV7iDSBiJJhtHSanhjg7ZjWKm6BoVGc4NQAhCnoyW')
 
   const decodedMessage = Buffer.from(message, 'base64');
   const godWhyIsThisSoDifficult = TransactionMessage.decompile(
@@ -49,10 +49,10 @@ const signTransaction = async (message: string) => {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { tx } = body;
+    const { tx, collectionAddress } = body;
     
     console.log(tx)
-    const result = await signTransaction(tx);
+    const result = await signTransaction(tx, collectionAddress);
     return NextResponse.json({ message: result }, { status: 200 });
   } catch (error) {
     console.error('Error signing transaction:', error);

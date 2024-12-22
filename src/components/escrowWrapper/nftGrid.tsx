@@ -14,9 +14,15 @@ const NftGrid = ({ assets }: { assets: DasApiAsset[] }) => {
       )
     )
     .map((asset) => {
-      const image = asset.content.files
-        ? (asset.content.files[0]["cdn_uri"] as string)
-        : "fallback.png";
+      console.log(asset)
+      // @ts-ignore
+      const image = asset.content.files?.[0]?.uri || 
+        // @ts-ignore
+                   asset.content.json?.image ||
+                   asset.content.metadata?.image ||
+                   // @ts-ignore
+                   asset.content.links?.image ||
+                   "fallback.png";
 
       return (
         <Card key={asset.id} className="p-2 flex flex-col gap-4">

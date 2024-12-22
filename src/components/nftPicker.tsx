@@ -13,6 +13,7 @@ import {
 } from "@metaplex-foundation/digital-asset-standard-api";
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 const formatAmount = (amount: number, decimals: number) => {
   return (amount / 10 ** decimals).toFixed(decimals);
 };
@@ -21,12 +22,14 @@ const NftPicker = ({
   wallet,
   setSelectedAsset,
   decimals = 9,
+  escrow,
 }: {
   children: React.ReactNode;
   name?: string;
   wallet: "user" | "escrow";
   setSelectedAsset: (asset: DasApiAsset) => void;
   decimals?: number;
+  escrow: EscrowV1;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -43,7 +46,7 @@ const NftPicker = ({
     setIsSearching(true);
     if (wallet === "user") {
       // fetch user assets
-      fetchUserAssets().then((assets) => {
+      fetchUserAssets(escrow.collection.toString()).then((assets) => {
         console.log({ assets });
         setIsSearching(false);
         if (assets) {
@@ -52,8 +55,11 @@ const NftPicker = ({
         }
       });
     } else if (wallet === "escrow") {
+      if (!escrow) {
+        return;
+      }
       // fetch escrow assets
-      fetchEscrowAssets().then((assets) => {
+      fetchEscrowAssets(escrow).then((assets) => {
         console.log({ assets });
         setIsSearching(false);
         if (assets) {

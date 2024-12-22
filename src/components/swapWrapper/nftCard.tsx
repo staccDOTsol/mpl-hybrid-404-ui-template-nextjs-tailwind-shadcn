@@ -4,16 +4,17 @@ import { Card } from "../ui/card";
 import CollectionImg from "@/assets/images/collectionImage.jpg";
 import useEscrowStore from "@/store/useEscrowStore";
 import { TradeState } from "./swapWrapper";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 
 interface NftCardProps {
   tradeState: TradeState;
   setSelectedAsset: (selectedNft: DasApiAsset) => void;
   selectedAsset: DasApiAsset | undefined;
+  escrow: EscrowV1;   
 }
 
 const NftCard = (props: NftCardProps) => {
-  const { escrow } = useEscrowStore();
-
+const escrow = props.escrow;
   const card = (
     <Card className="flex flex-col items-start w-full border border-foreground-muted rounded-xl shadow-lg p-4 gap-4">
       <div className="flex flex-row gap-4 items-center">
@@ -50,6 +51,7 @@ const NftCard = (props: NftCardProps) => {
       {props.tradeState === TradeState.nft ||
       (props.tradeState === TradeState.tokens && escrow?.path === 0) ? (
         <NftPicker
+          escrow={escrow}
           wallet={props.tradeState === TradeState.nft ? "user" : "escrow"}
           setSelectedAsset={(selectedNft) => {
             props.setSelectedAsset(selectedNft);

@@ -13,18 +13,26 @@ import { Button } from "../ui/button";
 import NftCard from "./nftCard";
 import TokenCard from "./tokenCard";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import { Connection } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
+import useTokenStore from "@/store/useTokenStore";
+import { publicKey } from "@metaplex-foundation/umi";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { EscrowV1 } from "@metaplex-foundation/mpl-hybrid";
 
 export enum TradeState {
   "nft",
   "tokens",
 }
-
-const SwapWrapper = () => {
+type props = {
+  escrowAddress: string,
+  tokenMint: string,
+  escrow: EscrowV1, 
+}
+const SwapWrapper = ({ escrowAddress,  escrow }: props) => {
+  const { token: tokenMint } = escrow;
   const [tradeState, setTradeState] = useState<TradeState>(TradeState.nft);
   const [selectedAsset, setSelectedAsset] = useState<DasApiAsset>();
   const [isTransacting, setIsTransacting] = useState(false);
-  const { escrow } = useEscrowStore();
   const wallet = useAnchorWallet();
   const connection = new Connection(process.env.NEXT_PUBLIC_RPC!);
   const handleSwap = async () => {
@@ -77,8 +85,9 @@ const SwapWrapper = () => {
   };
 
   useEffect(() => {
+  if (!wallet) return;  
     // Fetch/Refresh Escrow
-    fetchEscrow()
+    fetchEscrow(escrowAddress)
       .then((escrowData) => {
         useEscrowStore.setState({ escrow: escrowData });
       })
@@ -86,20 +95,21 @@ const SwapWrapper = () => {
         toast({ title: "Escrow Error", description: error.message })
       );
   }, []);
-
+  if (!escrow) return;
   return (
     <div className="flex flex-col gap-8 items-center max-w-[600px] w-full">
-      <TokenBalance />
+      <TokenBalance tokenAccount={tokenMint} />
       {/* {tradeState === "tokens" ? <SwapTokens setTradeState={tradeState => setTradeState(tradeState)} /> : <SwapNft setTradeState={tradeState => setTradeState(tradeState)} />} */}
 
       {tradeState === TradeState.nft ? (
         <NftCard
+          escrow={escrow}
           tradeState={tradeState}
           setSelectedAsset={(asset) => setSelectedAsset(asset)}
           selectedAsset={selectedAsset}
         />
       ) : (
-        <TokenCard tradeState={tradeState} />
+        <TokenCard tradeState={tradeState} tokenAccount={tokenMint} escrow={escrow} />
       )}
 
       <ArrowsUpDownIcon
@@ -112,12 +122,13 @@ const SwapWrapper = () => {
       />
 
       {tradeState === TradeState.nft ? (
-        <TokenCard tradeState={tradeState} />
+        <TokenCard tradeState={tradeState} tokenAccount={tokenMint} escrow={escrow} />
       ) : (
         <NftCard
           tradeState={tradeState}
           setSelectedAsset={setSelectedAsset}
           selectedAsset={selectedAsset}
+          escrow={escrow}
         />
       )}
 
