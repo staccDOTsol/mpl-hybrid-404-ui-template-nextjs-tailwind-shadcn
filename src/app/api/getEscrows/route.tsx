@@ -47,6 +47,27 @@ export async function GET() {
       }
       const token = await fetchAsset(escrowData.token);
       console.log(token)    
+      // Try the direct image path first
+      let imagePath = escrowData.uri.replace(/\/$/, '') + '/' + escrowData.count + '.png';
+      
+      try {
+        const fetched = await fetch(imagePath);
+        console.log(fetched)
+        
+        // If direct path fails, try alternate path with escrow name
+        if (fetched.status !== 200) {
+          const escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
+          imagePath = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced  + escrowData.count + '.png';
+          
+          // Verify alternate path works
+          const altFetch = await fetch(imagePath);
+         
+        }
+      } catch (error) {
+        console.error('Error fetching image:', error);
+        imagePath = '/placeholder.png';
+      }
+      console.log(imagePath)
       return {
         pubkey: account.pubkey.toString(),
         collection: escrowData.collection.toString(),
@@ -64,7 +85,7 @@ export async function GET() {
         path: escrowData.path,
         bump: escrowData.bump,
         metadata,
-        imagePath: escrowData.uri.replace(/\/$/, '') + '/' + escrowData.count + '.png',
+        imagePath,
         // Add additional formatted data
         // @ts-ignore
         formattedAmount: `${(Number(escrowData.feeAmount) / 10 ** token.token_info.decimals).toFixed(2)} TOKENS`,

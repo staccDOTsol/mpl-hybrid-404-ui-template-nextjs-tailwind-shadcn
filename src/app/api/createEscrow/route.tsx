@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     const result = await createEscrow({
       name: escrowName,
       tokenMint: tokenMint,
-      metadataBaseUrl: "https://shdw-drive.genesysgo.net/E3eKxVWovF4rq2def4Hdaxcckj7jeRP7xQATuvN6X9qv"+escrowName, // Get base URL from first metadata URL
+      metadataBaseUrl: "https://shdw-drive.genesysgo.net/E3eKxVWovF4rq2def4Hdaxcckj7jeRP7xQATuvN6X9qv/"+escrowName, // Get base URL from first metadata URL
       minIndex: minAssetIndex,
       maxIndex: maxAssetIndex,
       feeWalletAddress: feeWallet,
