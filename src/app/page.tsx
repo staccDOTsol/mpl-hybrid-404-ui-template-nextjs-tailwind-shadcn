@@ -25,7 +25,8 @@ export default function Home() {
     const escrowData = await fetchEscrowV1(umi, publicKey(escrowPubkey));
     useEscrowStore.setState({ escrow: escrowData });
   };
-  if (escrows.length === 0) return;
+  if (!escrows) return;
+  if (escrows && escrows.length === 0) return;
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

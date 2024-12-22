@@ -37,16 +37,16 @@ export async function POST(req: Request) {
 
     // Use the existing createEscrow function
     const result = await createEscrow({
-      name: escrowName,
-      tokenMint: tokenMint,
-      metadataBaseUrl: "https://shdw-drive.genesysgo.net/E3eKxVWovF4rq2def4Hdaxcckj7jeRP7xQATuvN6X9qv/"+escrowName, // Get base URL from first metadata URL
-      minIndex: minAssetIndex,
-      maxIndex: maxAssetIndex,
-      feeWalletAddress: feeWallet,
-      tokenSwapCost: swapToTokenValueReceived,
-      tokenSwapFee: swapToNftTokenFee,
-      solSwapFee: solFeeAmount,
-      reroll: rerollEnabled
+      name: String(escrowName),
+      tokenMint: String(tokenMint),
+      metadataBaseUrl: `https://shdw-drive.genesysgo.net/E3eKxVWovF4rq2def4Hdaxcckj7jeRP7xQATuvN6X9qv/${String(escrowName)}`,
+      minIndex: Number(minAssetIndex),
+      maxIndex: Number(maxAssetIndex),
+      feeWalletAddress: String(feeWallet),
+      tokenSwapCost: Number(swapToTokenValueReceived),
+      tokenSwapFee: Number(swapToNftTokenFee),
+      solSwapFee: Number(solFeeAmount),
+      reroll: Boolean(rerollEnabled)
     });
 
     return NextResponse.json({

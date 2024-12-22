@@ -7,6 +7,7 @@ import { deserializeEscrowV1 } from '@metaplex-foundation/mpl-hybrid/dist/src/ge
 import { web3JsRpc } from '@metaplex-foundation/umi-rpc-web3js';
 import { fetchMetadata } from '@metaplex-foundation/mpl-token-metadata';
 import fetchAsset from '@/lib/das/fetchAsset';
+import { getMint } from '@solana/spl-token';
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -68,6 +69,7 @@ export async function GET() {
         imagePath = '/placeholder.png';
       }
       console.log(imagePath)
+      const tkoenInfo = await getMint(connection, new PublicKey(escrowData.token.toString()))
       return {
         pubkey: account.pubkey.toString(),
         collection: escrowData.collection.toString(),
@@ -88,7 +90,7 @@ export async function GET() {
         imagePath,
         // Add additional formatted data
         // @ts-ignore
-        formattedAmount: `${(Number(escrowData.feeAmount) / 10 ** token.token_info.decimals).toFixed(2)} TOKENS`,
+        formattedAmount: `${(Number(escrowData.feeAmount) / 10 ** tkoenInfo.decimals).toFixed(2)} TOKENS`,
         formattedFeeAmount: `${(Number(escrowData.solFeeAmount) / 10 ** 9).toFixed(2)} SOL`,
         createdAt: new Date().toISOString(), // You might want to get this from somewhere else
         status: 'active', // You might want to determine this based on other factors
