@@ -5,6 +5,7 @@ import { Card } from "../ui/card";
 import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api";
 import fetchEscrowAssets from "@/lib/fetchEscrowAssets";
 import NftGrid from "./nftGrid";
+import CreateEscrow from "./createEscrow";
 
 const NftEscrow = () => {
   const [escrowAssets, setEscrowAssets] = useState<DasApiAssetList>();

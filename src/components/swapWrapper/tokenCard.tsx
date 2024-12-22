@@ -9,7 +9,9 @@ import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { TradeState } from "./swapWrapper";
 import { set } from "@metaplex-foundation/umi/serializers";
-
+const   formatAmount = (amount: number, decimals: number) => {
+  return (amount / 10 ** decimals).toFixed(decimals);
+};
 interface TokenCardProps {
   tradeState: TradeState;
 }
@@ -18,12 +20,16 @@ const TokenCard = (props: TokenCardProps) => {
   const { escrow } = useEscrowStore();
   const { tokenAsset, updateTokenAsset } = useTokenStore();
   const [loading, setLoading] = useState(true);
-
+  const [decimals, setDecimals] = useState<any>(null);
+  
   useEffect(() => {
     if (!tokenAsset && escrow?.token) {
       setLoading(true);
       fetchAsset(escrow.token).then((asset) => {
         updateTokenAsset(asset);
+        console.log(asset)
+        // @ts-ignore
+        setDecimals(asset.token_info?.decimals);
       });
     } else {
       setLoading(false);
@@ -44,7 +50,7 @@ const TokenCard = (props: TokenCardProps) => {
 
       {escrow && !loading ? (
         <div className="flex flex-col">
-          {Number(escrow.amount).toLocaleString()}{" "}
+            {formatAmount(Number(escrow.amount), decimals)}{" "}
           {tokenAsset?.content.metadata.name}
         </div>
       ) : (

@@ -13,16 +13,20 @@ import {
 } from "@metaplex-foundation/digital-asset-standard-api";
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
-
+const formatAmount = (amount: number, decimals: number) => {
+  return (amount / 10 ** decimals).toFixed(decimals);
+};
 const NftPicker = ({
   children,
   wallet,
   setSelectedAsset,
+  decimals = 9,
 }: {
   children: React.ReactNode;
   name?: string;
   wallet: "user" | "escrow";
   setSelectedAsset: (asset: DasApiAsset) => void;
+  decimals?: number;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -68,14 +72,11 @@ const NftPicker = ({
         { numeric: true }
       )
     )
-    .map((asset) => {
-      const image = asset.content.files
-        ? (asset.content.files[0]["cdn_uri"] as string)
-        : asset.content.links
-        ? (asset.content.links[
-            "image" as keyof typeof asset.content.links
-          ] as unknown as string)
-        : "fallback.png";
+    .map((asset:any) => {
+      const image = asset.content.files?.[0]?.uri ||
+                   asset.content.files?.[0]?.cdn_uri ||
+                   asset.content.links?.[0] ||
+                   '/fallback.png';
 
       return (
         <Card
@@ -90,6 +91,9 @@ const NftPicker = ({
           />
           <div className="col-span-3">
             <p className="text-lg font-bold">{asset.content.metadata.name}</p>
+            <div className="amount-display">
+              {formatAmount(asset.token_info?.balance?.basisPoints || 0, decimals)}
+            </div>
           </div>
         </Card>
       );
@@ -111,7 +115,7 @@ const NftPicker = ({
         </DialogHeader>
 
         {assetList && assetList.length > 0 ? (
-          <div className="grid grid-cols-4 gap-4 overflow-auto p-2">
+          <div className="grid grid-cols-3 gap-4 overflow-auto p-2">
             {assetList}
           </div>
         ) : (

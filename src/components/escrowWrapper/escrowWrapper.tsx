@@ -8,6 +8,7 @@ import { Card } from "../ui/card";
 import EscrowSettings from "./escowSettings";
 import NftEscrow from "./nftEscrowSummary";
 import TokenEscrowSummary from "./tokenEscrowSummary";
+import CreateEscrow from "./createEscrow";
 
 const EscrowWrapper = () => {
   const escrowData = useEscrowStore().escrow;
@@ -47,6 +48,7 @@ const EscrowWrapper = () => {
         </div>
       </Card>
       <NftEscrow />
+      <CreateEscrow />  
     </div>
   );
 };

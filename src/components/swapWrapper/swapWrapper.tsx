@@ -12,6 +12,8 @@ import TokenBalance from "../tokenBalance";
 import { Button } from "../ui/button";
 import NftCard from "./nftCard";
 import TokenCard from "./tokenCard";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+import { Connection } from "@solana/web3.js";
 
 export enum TradeState {
   "nft",
@@ -23,7 +25,8 @@ const SwapWrapper = () => {
   const [selectedAsset, setSelectedAsset] = useState<DasApiAsset>();
   const [isTransacting, setIsTransacting] = useState(false);
   const { escrow } = useEscrowStore();
-
+  const wallet = useAnchorWallet();
+  const connection = new Connection(process.env.NEXT_PUBLIC_RPC!);
   const handleSwap = async () => {
     setIsTransacting(true);
     console.log("Swapping", tradeState, selectedAsset);
@@ -47,8 +50,15 @@ const SwapWrapper = () => {
         return;
       }
     }
-
-    swap({ swapOption: tradeState, selectedNft: selectedAsset })
+    if (!wallet) {
+      toast({
+        title: "No wallet connected",
+        description: "Please connect your wallet",
+        variant: "destructive",
+      });
+      return;
+    }
+    swap({ swapOption: tradeState, selectedNft: selectedAsset, wallet: wallet, connection: connection })
       .then(() => {
         toast({
           title: "Swap Successful",

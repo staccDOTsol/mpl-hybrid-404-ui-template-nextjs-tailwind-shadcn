@@ -6,7 +6,7 @@ import {
   findAssociatedTokenPda,
   SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@metaplex-foundation/mpl-toolbox";
-import { publicKey, sol } from "@metaplex-foundation/umi";
+import { generateSigner, publicKey, sol } from "@metaplex-foundation/umi";
 import {
   base58,
   publicKey as publicKeySerializer,
@@ -14,6 +14,7 @@ import {
 } from "@metaplex-foundation/umi/serializers";
 import umiWithCurrentWalletAdapter from "../umi/umiWithCurrentWalletAdapter";
 import sendAndConfirmWalletAdapter from "../umi/sendAndConfirmWithWalletAdapter";
+import { create } from "@metaplex-foundation/mpl-core";
 
 interface CreateEscrowArgs {
   name: string;
@@ -31,7 +32,7 @@ const createEscrow = async (createEscrowArgs: CreateEscrowArgs) => {
   const umi = umiWithCurrentWalletAdapter();
 
   const escrowName = createEscrowArgs.name;
-  const collectionAddress = process.env.NEXT_PUBLIC_COLLECTION_ADDRESS;
+  let collectionAddress = process.env.NEXT_PUBLIC_COLLECTION_ADDRESS;
 
   if (!collectionAddress) {
     throw new Error("Collection address not found");
@@ -63,7 +64,24 @@ const createEscrow = async (createEscrowArgs: CreateEscrowArgs) => {
   const swapToNftSolFee = createEscrowArgs.solSwapFee; // OPTIONAL ADDITIONAL SOLANA FEE TO PAY WHEN SWAPPING TO NFTS
 
   const rerollEnabled = createEscrowArgs.reroll ? 1 : 0;
+  // Create collection
+  const collectionMint = generateSigner(umi);
+  const collection = {
+    asset: collectionMint,
+    uri: `${baseMetadataPoolUri}/1.json`,
+    creators: [{
+      share: 100,
+      address: umi.identity.publicKey,
+      verified: true,
+    }],
+    name: escrowName,
+    symbol: "COL",
+    sellerFeeBasisPoints: {basisPoints: BigInt(500), decimals: 2, identifier: "%"},
+    owner: umi.identity.publicKey,
+  };
 
+  await create(umi, collection).sendAndConfirm(umi);
+  collectionAddress = collectionMint.publicKey;
   const escrowAddress = umi.eddsa.findPda(MPL_HYBRID_PROGRAM_ID, [
     string({ size: "variable" }).serialize("escrow"),
     publicKeySerializer().serialize(collectionAddress),
