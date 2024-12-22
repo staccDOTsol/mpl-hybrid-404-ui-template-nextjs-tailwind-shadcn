@@ -16,10 +16,7 @@ export async function GET() {
     const connection = new Connection('https://rpc.ironforge.network/mainnet?apiKey=01HRZ9G6Z2A19FY8PR4RF4J4PW');
     
     const accounts = await connection.getProgramAccounts(
-      new PublicKey(MPL_HYBRID_PROGRAM_ID),
-      {
-        filters: [{ dataSize: 284 }]
-      }
+      new PublicKey(MPL_HYBRID_PROGRAM_ID)
     );
 
     const escrowsWithData = await Promise.all(accounts.map(async account => {
@@ -38,10 +35,21 @@ export async function GET() {
       }
       if (escrowData.uri) {
         try {
-          // Construct the full metadata URI by combining base URI with index
-          const metadataUri = escrowData.uri.replace(/\/$/, '') + '/' + escrowData.count + '.json';
-          const response = await fetch(metadataUri);
+          // Try direct metadata path first
+          let metadataUri = escrowData.uri.replace(/\/$/, '') + '/' + escrowData.count + '.json';
+          let response = await fetch(metadataUri);
+          
+          // If direct path fails, try alternate path with escrow name
+          if (response.status !== 200) {
+            console.log('Failed to fetch metadata from direct path, trying alternate path')
+            const escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
+            metadataUri = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced + escrowData.count + '.json';
+            response = await fetch(metadataUri);
+            console.log(response)
+          }
+          
           metadata = await response.json();
+          console.log(metadata)
         } catch (e) {
           console.error(`Failed to fetch metadata for ${escrowData.uri}:`, e);
         }
@@ -60,9 +68,6 @@ export async function GET() {
           const escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
           imagePath = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced  + escrowData.count + '.png';
           
-          // Verify alternate path works
-          const altFetch = await fetch(imagePath);
-         
         }
       } catch (error) {
         console.error('Error fetching image:', error);
@@ -70,6 +75,9 @@ export async function GET() {
       }
       console.log(imagePath)
       const tkoenInfo = await getMint(connection, new PublicKey(escrowData.token.toString()))
+      if (escrowData.name.indexOf('blackgif') !== -1 || escrowData.name.indexOf('idiomatic') !== -1) {
+        return null;
+      }
       return {
         pubkey: account.pubkey.toString(),
         collection: escrowData.collection.toString(),
