@@ -53,13 +53,11 @@ export async function GET() {
         } catch (e) {
           console.error(`Failed to fetch metadata for ${escrowData.uri}:`, e);
         }
-      }
-      const token = await fetchAsset(escrowData.token);
-      console.log(token)    
+      }  
       const randomNumber = 1
       // Try the direct image path first
       let imagePath = escrowData.uri.replace(/\/$/, '') + '/' + randomNumber + '.png';
-      
+      imagePath = imagePath.replace(' ', '%20')
       try {
         const fetched = await fetch(imagePath);
         console.log(fetched)
