@@ -114,7 +114,7 @@ const createEscrow = async (createEscrowArgs: CreateEscrowArgs) => {
   console.log('Retrieved mint info:', mintInfo);
   
   // Fee Amounts
-  const swapToTokenValueReceived = createEscrowArgs.tokenSwapCost; // USERS RECEIVE THIS AMOUNT WHEN SWAPPING TO FUNGIBLE TOKENS
+  const swapToTokenValueReceived = createEscrowArgs.tokenSwapCost * 10 ** mintInfo.decimals; // USERS RECEIVE THIS AMOUNT WHEN SWAPPING TO FUNGIBLE TOKENS
   const swapToNftTokenFee = createEscrowArgs.tokenSwapFee * 10 ** mintInfo.decimals; // USERS PAY THIS ADDITIONAL AMOUNT WHEN SWAPPING TO NFTS
   const swapToNftSolFee = createEscrowArgs.solSwapFee; // OPTIONAL ADDITIONAL SOLANA FEE TO PAY WHEN SWAPPING TO NFTS
   console.log('Fee amounts configured:', {
