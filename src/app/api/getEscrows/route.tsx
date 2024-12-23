@@ -56,8 +56,9 @@ export async function GET() {
       }
       const token = await fetchAsset(escrowData.token);
       console.log(token)    
+      const randomNumber = 1
       // Try the direct image path first
-      let imagePath = escrowData.uri.replace(/\/$/, '') + '/' + escrowData.count + '.png';
+      let imagePath = escrowData.uri.replace(/\/$/, '') + '/' + randomNumber + '.png';
       
       try {
         const fetched = await fetch(imagePath);
@@ -66,11 +67,11 @@ export async function GET() {
         // If direct path fails, try alternate path with escrow name
         if (fetched.status !== 200) {
           const escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
-          imagePath = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced  + escrowData.count + '.png';
+          imagePath = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced  + randomNumber + '.png';
           const fetched = await fetch(imagePath);
           console.log(fetched)
           if (fetched.status !== 200) {
-            imagePath = escrowData.uri.replace(escrowData.name,'') + escrowNameSliced  + escrowData.count + '.png';
+            imagePath = escrowData.uri.replace(escrowData.name,'') + escrowNameSliced  + randomNumber + '.png';
           }
         }
       } catch (error) {

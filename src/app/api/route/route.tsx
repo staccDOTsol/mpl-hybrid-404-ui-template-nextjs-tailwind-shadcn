@@ -16,6 +16,7 @@ import { fetchAssetsByCollection } from '@metaplex-foundation/mpl-core';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { string, publicKey as publicKeySerializer} from '@metaplex-foundation/umi/serializers';
 import { setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
+import fetchEscrow from '@/lib/mpl-hybrid/fetchEscrow';
 const cache = new NodeCache({ stdTTL: 300 }); // Cache for 5 minutes
 
 const createNftWithCache = async (p: string, coll: string) => {
@@ -38,7 +39,6 @@ const createNftWithCache = async (p: string, coll: string) => {
   const assetsByCollection = await fetchAssetsByCollection(umi, collection, {
     skipDerivePlugins: false,
   })
-  console.log('Fetched assets by collection, count:', assetsByCollection.length);
 
   // Find the escrow PDA
   const [escrowPda] = PublicKey.findProgramAddressSync(
@@ -55,13 +55,39 @@ const createNftWithCache = async (p: string, coll: string) => {
 
   const assetToCapturePk = generateSigner(umi)
   console.log('Generated asset signer:', assetToCapturePk.publicKey.toString());
-
+  const escrowData = await fetchEscrow(publicKey(escrow[0].toString()))
+  const randomNumber = Math.floor(Math.random() * assetsByCollection.length);
   const c = await fetchCollection(umi, collection);
   console.log('Fetched collection details');
-
+  let escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
+  // URL encode the escrow name to handle special characters
+  const encodedEscrowName = encodeURIComponent(escrowData.name);
+  escrowNameSliced = encodedEscrowName.replace(' ', '%20')
+  let uri = escrowData.uri.replace(escrowData.name,'')  + escrowNameSliced + randomNumber + '.json';
+  console.log(uri)
+  try {
+    const response = await fetch(uri);
+    if (!response.ok) {
+      // If escrow name path fails, try direct path
+      uri = escrowData.uri.replace(/\/$/, '') + '/' + randomNumber + '.json';
+      console.log('Using direct URI path:', uri);
+      
+      const directResponse = await fetch(uri);
+      if (!directResponse.ok) {
+        // Try one more time without the slash
+        uri = escrowData.uri.replace(escrowData.name,'') + escrowNameSliced + randomNumber + '.json';
+        console.log('Using fallback URI:', uri);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching metadata URI:', error);
+    // Use base URI as fallback
+    uri = escrowData.uri.replace(escrowData.name,'') + escrowNameSliced + randomNumber + '.json';
+    console.log('Using fallback URI due to error:', uri);
+  }
   const assetToCapture = {
     asset: assetToCapturePk,
-    uri: `https://shdw-drive.genesysgo.net/E3eKxVWovF4rq2def4Hdaxcckj7jeRP7xQATuvN6X9qv/${assetsByCollection.length}.json`,
+    uri: uri,
     creators: [{
       share: 50,
       address: umi.identity.publicKey,
