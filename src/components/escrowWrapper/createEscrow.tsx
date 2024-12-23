@@ -104,10 +104,17 @@ const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined
     isNumber: boolean = false
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: isNumber ? Number(value) : value,
-    }));
+    if (name === "generateCount"){
+      setFormData((prev) => ({
+        ...prev,
+        ["maxAssetIndex"]: Number(value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isNumber ? Number(value) : value,
+      }));
+    }
   };
 
   return (
@@ -129,60 +136,35 @@ const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined
 
 
           <div>
-            <Label htmlFor="tokenMint">Token Mint</Label>
+            <Label htmlFor="tokenMint">Token Address for Swaps</Label>
             <Input
               id="tokenMint"
               name="tokenMint"
               value={formData.tokenMint}
               onChange={handleInputChange}
-              placeholder="Token Mint Address"
+              placeholder="Address of the token users will swap with (e.g., your PumpFun token)"
               required
             />
+            <p className="text-sm text-muted-foreground mt-1">
+              This is the token that users will receive when they swap in their NFTs
+            </p>
           </div>
 
           <div>
-            <Label htmlFor="feeWallet">Fee Wallet</Label>
+            <Label htmlFor="feeWallet">Your Fee Wallet</Label>
             <Input
               id="feeWallet"
               name="feeWallet"
               value={formData.feeWallet}
               onChange={handleInputChange}
-              placeholder="Fee Wallet Address"
+              placeholder="Wallet address where you'll receive fees"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="minAssetIndex">Min Asset Index</Label>
-              <Input
-                id="minAssetIndex"
-                name="minAssetIndex"
-                type="number"
-                value={formData.minAssetIndex}
-                onChange={(e) => handleInputChange(e, true)}
-                min="0"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="maxAssetIndex">Max Asset Index</Label>
-              <Input
-                id="maxAssetIndex"
-                name="maxAssetIndex"
-                type="number"
-                value={formData.maxAssetIndex}
-                onChange={(e) => handleInputChange(e, true)}
-                min="0"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="swapToTokenValueReceived">Swap to Token Value</Label>
+              <Label htmlFor="swapToTokenValueReceived">NFT → Token Value</Label>
               <Input
                 id="swapToTokenValueReceived"
                 name="swapToTokenValueReceived"
@@ -192,10 +174,13 @@ const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined
                 min="0"
                 required
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                How many tokens users receive when they swap in an NFT
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="swapToNftTokenFee">Swap to NFT Fee</Label>
+              <Label htmlFor="swapToNftTokenFee">Token → NFT Fee</Label>
               <Input
                 id="swapToNftTokenFee"
                 name="swapToNftTokenFee"
@@ -205,11 +190,14 @@ const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined
                 min="0"
                 required
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                Fee in tokens charged when users swap tokens for an NFT
+              </p>
             </div>
           </div>
 
           <div>
-            <Label htmlFor="solFeeAmount">SOL Fee Amount</Label>
+            <Label htmlFor="solFeeAmount">Additional SOL Fee</Label>
             <Input
               id="solFeeAmount"
               name="solFeeAmount"
@@ -220,6 +208,9 @@ const CreateEscrow = ({ wallet, connection }: { wallet: AnchorWallet | undefined
               step="0.1"
               required
             />
+            <p className="text-sm text-muted-foreground mt-1">
+              Additional fee in SOL charged for any swap (NFT→Token or Token→NFT)
+            </p>
           </div>
           <div>
             <Label htmlFor="nftPrompt">NFT Prompt</Label>
