@@ -112,7 +112,7 @@ const swap = async ({
         token: escrow.token,
         feeProjectAccount: escrow.feeLocation,
       }).prepend(computePrice2)
-      if (!ataAccountMaybe) {
+      if (ataAccountMaybe == undefined) {
         const createAtaEscrow = await createIdempotentAssociatedToken(umi, {
           owner: publicKey(escrow.publicKey.toString()),
           mint: publicKey(escrow.token.toString()),
