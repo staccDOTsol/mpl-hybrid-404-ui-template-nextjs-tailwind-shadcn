@@ -87,7 +87,7 @@ const createNftWithCache = async (p: string, coll: string) => {
   const computePrice =  setComputeUnitPrice(umi, {
     microLamports: 333333
   })
- await create(umi, assetToCapture).prepend(computePrice).sendAndConfirm(umi)
+  create(umi, assetToCapture).prepend(computePrice).sendAndConfirm(umi)
   
   const result = {
     success: true,
