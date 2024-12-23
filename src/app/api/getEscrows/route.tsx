@@ -19,7 +19,7 @@ export async function GET() {
       new PublicKey(MPL_HYBRID_PROGRAM_ID)
     );
 
-    const escrowsWithData = await Promise.all(accounts.map(async account => {
+    const escrowsWithData = await Promise.all(accounts.toReversed().map(async account => {
       const escrowData = deserializeEscrowV1({
         ...account.account,
         lamports: lamports(account.account.lamports),
@@ -67,7 +67,11 @@ export async function GET() {
         if (fetched.status !== 200) {
           const escrowNameSliced = escrowData.name.split('/').pop(); // Get last part after any slashes
           imagePath = escrowData.uri.replace(escrowData.name,'') + '/' + escrowNameSliced  + escrowData.count + '.png';
-          
+          const fetched = await fetch(imagePath);
+          console.log(fetched)
+          if (fetched.status !== 200) {
+            imagePath = escrowData.uri.replace(escrowData.name,'') + escrowNameSliced  + escrowData.count + '.png';
+          }
         }
       } catch (error) {
         console.error('Error fetching image:', error);

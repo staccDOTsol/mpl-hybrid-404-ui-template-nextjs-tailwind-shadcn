@@ -83,11 +83,12 @@ const TokenCard = (props: TokenCardProps) => {
       ) : (
         <Skeleton className="w-24 h-24 rounded-xl" />
       )}
-
       {escrow && !loading ? (
         <div className="flex flex-col">
-            {(Number(escrow.amount) / 10 ** decimals).toFixed(decimals)}{" "}
-          {tokenAsset?.content.metadata.name}
+          <div className="text-lg font-medium">
+            {(Number(escrow.amount) ).toFixed(decimals || 2)}{" "}
+            {tokenAsset?.content.metadata.name}
+          </div>
         </div>
       ) : (
         <Skeleton className=" w-[250px] h-8" />
