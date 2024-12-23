@@ -86,7 +86,7 @@ const TokenCard = (props: TokenCardProps) => {
       {escrow && !loading ? (
         <div className="flex flex-col">
           <div className="text-lg font-medium">
-            {(Number(escrow.amount) / 10 ** (decimals || 9)).toFixed(decimals || 2)}{" "}
+            {(Number(escrow.amount) / 10 ** (decimals || 9)).toFixed(decimals ||9 )}{" "}
             {tokenAsset?.content.metadata.name}
           </div>
         </div>
