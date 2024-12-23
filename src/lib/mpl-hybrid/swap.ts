@@ -97,12 +97,12 @@ const swap = async ({
       const computePrice2 = await setComputeUnitPrice(umi, {
         microLamports: 333333
       })
-      const createAtaEscrow = await createIdempotentAssociatedToken(umi, {
-        owner: publicKey(escrow.publicKey.toString()),
-        mint: publicKey(escrow.token.toString()),
-        ata: publicKey(getAssociatedTokenAddressSync(new PublicKey(escrow.token.toString()), new PublicKey(escrow.publicKey.toString()), true)    )
-      });
-      const captureTx = await captureV1(umi, {
+      const ata = getAssociatedTokenAddressSync(new PublicKey(escrow.token.toString()), new PublicKey(escrow.publicKey.toString()), true) 
+      const ataAccountMaybe = await connection.getAccountInfo(ata)
+      console.log(ataAccountMaybe)
+     
+      
+      let captureTx = await captureV1(umi, {
         owner: umi.identity,
         escrow: escrow.publicKey,
         authority: {...umi.identity, publicKey: escrow.authority},
@@ -111,12 +111,21 @@ const swap = async ({
         collection: escrow.collection,
         token: escrow.token,
         feeProjectAccount: escrow.feeLocation,
-      }).prepend(computePrice2).prepend(createAtaEscrow).buildWithLatestBlockhash(umi);
+      }).prepend(computePrice2)
+      if (!ataAccountMaybe) {
+        const createAtaEscrow = await createIdempotentAssociatedToken(umi, {
+          owner: publicKey(escrow.publicKey.toString()),
+          mint: publicKey(escrow.token.toString()),
+          ata: publicKey(getAssociatedTokenAddressSync(new PublicKey(escrow.token.toString()), new PublicKey(escrow.publicKey.toString()), true)    )
+        });
+        captureTx = captureTx.prepend(createAtaEscrow)
+      }
+     const captureTx2 = await captureTx.buildWithLatestBlockhash(umi);
        signed =await (await fetch("/api/sign", { 
         method: "POST",
         body: JSON.stringify({
           collectionAddress: escrow.collection.toString(),
-          tx: Buffer.from(captureTx.serializedMessage).toString('base64')
+          tx: Buffer.from(captureTx2.serializedMessage).toString('base64')
         }),
       })).json()
 
